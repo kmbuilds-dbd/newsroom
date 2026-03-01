@@ -21,7 +21,7 @@ export async function GET(
     .from("developments")
     .select("*")
     .eq("story_id", id)
-    .order("position", { ascending: true });
+    .order("date_sort", { ascending: true });
 
   if (devError) {
     return NextResponse.json(
@@ -31,4 +31,50 @@ export async function GET(
   }
 
   return NextResponse.json({ ...story, developments });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  // Verify story exists
+  const { data: story, error: storyError } = await supabase
+    .from("stories")
+    .select("id")
+    .eq("id", id)
+    .single();
+
+  if (storyError || !story) {
+    return NextResponse.json({ error: "Story not found" }, { status: 404 });
+  }
+
+  // Delete developments first (child records)
+  const { error: devError } = await supabase
+    .from("developments")
+    .delete()
+    .eq("story_id", id);
+
+  if (devError) {
+    return NextResponse.json(
+      { error: `Failed to delete developments: ${devError.message}` },
+      { status: 500 }
+    );
+  }
+
+  // Delete the story
+  const { error: deleteError } = await supabase
+    .from("stories")
+    .delete()
+    .eq("id", id);
+
+  if (deleteError) {
+    return NextResponse.json(
+      { error: `Failed to delete story: ${deleteError.message}` },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
 }

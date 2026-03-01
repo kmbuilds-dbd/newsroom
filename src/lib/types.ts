@@ -17,12 +17,31 @@ export interface Development {
   position: number;
 }
 
+export type StoryCategory =
+  | "geopolitics"
+  | "tech"
+  | "health"
+  | "economy"
+  | "science"
+  | "culture";
+
+export const STORY_CATEGORIES: StoryCategory[] = [
+  "geopolitics",
+  "tech",
+  "health",
+  "economy",
+  "science",
+  "culture",
+];
+
 export interface Story {
   id: string;
   title: string;
   subtitle: string;
   event_query: string;
   status: "developing" | "concluded";
+  category: StoryCategory | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
   developments?: Development[];

@@ -4,6 +4,9 @@ import { Story } from "@/lib/types";
 import StoryHeader from "@/components/StoryHeader";
 import Timeline from "@/components/Timeline";
 import ExportButton from "@/components/ExportButton";
+import RefreshButton from "@/components/RefreshButton";
+import DeleteButton from "@/components/DeleteButton";
+import StoryQA from "@/components/StoryQA";
 
 export const revalidate = 0;
 
@@ -28,7 +31,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
     .from("developments")
     .select("*")
     .eq("story_id", id)
-    .order("position", { ascending: true });
+    .order("date_sort", { ascending: true });
 
   const fullStory: Story = {
     ...story,
@@ -38,10 +41,15 @@ export default async function StoryPage({ params }: StoryPageProps) {
   return (
     <main className="min-h-screen pb-24">
       <StoryHeader story={fullStory} />
-      <ExportButton />
+      <div className="flex items-center justify-center gap-2 mb-8">
+        <RefreshButton storyId={id} />
+        <ExportButton />
+        <DeleteButton storyId={id} />
+      </div>
       <div id="timeline-export-area">
         <Timeline developments={fullStory.developments || []} />
       </div>
+      <StoryQA storyId={id} storyTitle={fullStory.title} />
     </main>
   );
 }

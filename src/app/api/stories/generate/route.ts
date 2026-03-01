@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { generateTimeline } from "@/lib/anthropic";
-import { GenerateRequest } from "@/lib/types";
+import { GenerateRequest, STORY_CATEGORIES, StoryCategory } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +16,21 @@ export async function POST(request: NextRequest) {
 
     const timeline = await generateTimeline(body.event_query);
 
+    // Derive actor tags from source labels and merge with AI-generated tags
+    const actorTags = [
+      ...new Set(
+        timeline.developments.map((d) => d.source_label.toLowerCase())
+      ),
+    ];
+    const allTags = [...new Set([...(timeline.tags || []), ...actorTags])];
+
+    // Validate category
+    const category =
+      timeline.category &&
+      STORY_CATEGORIES.includes(timeline.category as StoryCategory)
+        ? timeline.category
+        : null;
+
     // Insert story
     const { data: story, error: storyError } = await supabase
       .from("stories")
@@ -24,6 +39,8 @@ export async function POST(request: NextRequest) {
         subtitle: timeline.subtitle,
         event_query: body.event_query,
         status: timeline.status,
+        category,
+        tags: allTags,
       })
       .select()
       .single();

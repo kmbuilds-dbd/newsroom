@@ -8,6 +8,8 @@ interface GeneratedTimeline {
   title: string;
   subtitle: string;
   status: "developing" | "concluded";
+  category: string | null;
+  tags: string[];
   developments: {
     date: string;
     date_sort: string;
@@ -22,12 +24,16 @@ interface GeneratedTimeline {
 
 const SYSTEM_PROMPT = `You are a senior investigative journalist and researcher. Given a news event, produce a comprehensive chronological timeline.
 
-Return ONLY valid JSON matching this exact schema:
+IMPORTANT: You have access to web search. USE IT to find the latest developments and verify dates. Search for the event to ensure your timeline is complete and up-to-date.
+
+Return ONLY valid JSON (no markdown, no code fences, no preamble) matching this exact schema:
 
 {
   "title": "Short editorial title for the event",
-  "subtitle": "One-sentence subtitle explaining the arc",
+  "subtitle": "Short subtitle explaining the arc (max 80 characters)",
   "status": "developing" or "concluded",
+  "category": one of "geopolitics", "tech", "health", "economy", "science", "culture",
+  "tags": ["lowercase-tag-1", "lowercase-tag-2", ...],
   "developments": [
     {
       "date": "Display date (e.g. 'JAN 9, 2026' or 'FEB 27 · 3:30P')",
@@ -35,7 +41,7 @@ Return ONLY valid JSON matching this exact schema:
       "source_label": "Primary actor/source in UPPERCASE (e.g. 'PENTAGON', 'ANTHROPIC')",
       "source_color": "Hex color for this actor (consistent per actor across the timeline)",
       "headline": "Bold headline summarizing this development",
-      "summary": "1-3 sentences covering what happened, public reaction, and implications",
+      "summary": "One complete factual sentence, no filler. Must fit in 120 characters.",
       "sources": [{"title": "Source name", "url": "https://..."}],
       "is_turning_point": true/false
     }
@@ -47,36 +53,68 @@ Guidelines:
 - Assign consistent colors per actor: use warm tones for government (reds, oranges), cool tones for companies (blues, teals), neutral for media (grays)
 - Mark 2-4 developments as turning points — the moments that changed the trajectory
 - Each development should have 1-2 real, verifiable source URLs
-- The subtitle should capture the narrative arc (e.g. "From partner to threat in seven months")
-- Dates should be human-readable and uppercase`;
+- The subtitle should capture the narrative arc in max 80 characters (e.g. "From partner to threat in seven months")
+- Dates should be human-readable and uppercase
+- Pick the single best-fit category for the event
+- Include 3-8 lowercase tags covering topics, key actors, and themes (e.g. "regulation", "ai-safety", "european-union")
+- Your response must be ONLY the JSON object. No text before or after.`;
 
 export async function generateTimeline(
   eventQuery: string
 ): Promise<GeneratedTimeline> {
   const message = await anthropic.messages.create({
     model: "claude-sonnet-4-20250514",
-    max_tokens: 8192,
+    max_tokens: 16384,
     messages: [
       {
         role: "user",
-        content: `Research and create a detailed chronological timeline for this news event: "${eventQuery}"`,
+        content: `Search the web for the latest information, then create a detailed chronological timeline for this news event: "${eventQuery}"`,
       },
     ],
     system: SYSTEM_PROMPT,
+    tools: [
+      {
+        type: "web_search_20250305",
+        name: "web_search",
+        max_uses: 10,
+      },
+    ],
   });
 
-  const textBlock = message.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
+  // With web search, there are multiple text blocks interleaved with tool results.
+  // The JSON is in the last text block.
+  const textBlocks = message.content.filter((block) => block.type === "text");
+  if (textBlocks.length === 0) {
     throw new Error("No text response from Claude");
   }
 
-  // Extract JSON from response (handle markdown code blocks)
-  let jsonStr = textBlock.text.trim();
-  const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonMatch) {
-    jsonStr = jsonMatch[1].trim();
+  // Try each text block from last to first to find valid JSON
+  for (let i = textBlocks.length - 1; i >= 0; i--) {
+    const block = textBlocks[i];
+    if (block.type !== "text") continue;
+
+    let jsonStr = block.text.trim();
+
+    // Try code block extraction
+    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonStr = codeBlockMatch[1].trim();
+    } else {
+      // Try to extract JSON object if there's surrounding text
+      const jsonObjectMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonObjectMatch) {
+        jsonStr = jsonObjectMatch[0];
+      }
+    }
+
+    try {
+      const parsed: GeneratedTimeline = JSON.parse(jsonStr);
+      return parsed;
+    } catch {
+      // This text block didn't have valid JSON, try the next one
+      continue;
+    }
   }
 
-  const parsed: GeneratedTimeline = JSON.parse(jsonStr);
-  return parsed;
+  throw new Error("No valid JSON found in Claude response");
 }
