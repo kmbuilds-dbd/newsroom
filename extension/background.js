@@ -1,4 +1,5 @@
 const API_BASE = "http://localhost:3000";
+const API_KEY = "7a111c34cd9f7222d9470c8fa0eb0f8cbc239d0317d8104b4245e98f0145e8b7";
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -24,7 +25,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
     const res = await fetch(`${API_BASE}/api/stories/generate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
       body: JSON.stringify({ event_query: title }),
     });
 

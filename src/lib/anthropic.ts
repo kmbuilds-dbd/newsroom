@@ -93,7 +93,8 @@ export async function generateTimeline(
     const block = textBlocks[i];
     if (block.type !== "text") continue;
 
-    let jsonStr = block.text.trim();
+    // Strip <cite> tags injected by web search
+    let jsonStr = block.text.replace(/<\/?cite[^>]*>/g, "").trim();
 
     // Try code block extraction
     const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);

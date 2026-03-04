@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { generateTimeline } from "@/lib/anthropic";
 import { STORY_CATEGORIES, StoryCategory } from "@/lib/types";
+import { requireAuth } from "@/lib/api-auth";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requireAuth(request);
+  if (denied) return denied;
+
   const { id } = await params;
 
   // Get existing story to retrieve the event_query

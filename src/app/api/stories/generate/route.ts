@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { generateTimeline } from "@/lib/anthropic";
 import { GenerateRequest, STORY_CATEGORIES, StoryCategory } from "@/lib/types";
+import { requireAuth } from "@/lib/api-auth";
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAuth(request);
+  if (denied) return denied;
+
   try {
     const body: GenerateRequest = await request.json();
 
