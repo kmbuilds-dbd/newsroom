@@ -4,10 +4,11 @@ import { useState } from "react";
 
 interface SearchBarProps {
   onSubmit: (query: string) => void;
+  initialQuery?: string;
 }
 
-export default function SearchBar({ onSubmit }: SearchBarProps) {
-  const [query, setQuery] = useState("");
+export default function SearchBar({ onSubmit, initialQuery = "" }: SearchBarProps) {
+  const [query, setQuery] = useState(initialQuery);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
