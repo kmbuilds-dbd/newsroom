@@ -19,6 +19,7 @@ interface StoryLibraryProps {
   pendingStories?: PendingStory[];
   onDismissPending?: (id: string) => void;
   onDelete?: (id: string) => void;
+  externalCategory?: StoryCategory | null;
 }
 
 export default function StoryLibrary({
@@ -26,6 +27,7 @@ export default function StoryLibrary({
   pendingStories,
   onDismissPending,
   onDelete,
+  externalCategory,
 }: StoryLibraryProps) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<StoryCategory | null>(
@@ -48,8 +50,9 @@ export default function StoryLibrary({
   const filtered = useMemo(() => {
     let result = stories;
 
-    if (activeCategory) {
-      result = result.filter((s) => s.category === activeCategory);
+    const effectiveCategory = externalCategory !== undefined ? externalCategory : activeCategory;
+    if (effectiveCategory) {
+      result = result.filter((s) => s.category === effectiveCategory);
     }
 
     if (activeTag) {
@@ -68,7 +71,7 @@ export default function StoryLibrary({
     }
 
     return result;
-  }, [stories, activeCategory, activeTag, search]);
+  }, [stories, activeCategory, activeTag, search, externalCategory]);
 
   return (
     <div className="mt-16 max-w-3xl mx-auto">
@@ -92,7 +95,7 @@ export default function StoryLibrary({
       </div>
 
       {/* Category tabs */}
-      {populatedCategories.length > 0 && (
+      {externalCategory === undefined && populatedCategories.length > 0 && (
         <div className="flex gap-2 mb-4 flex-wrap">
           <button
             onClick={() => setActiveCategory(null)}
