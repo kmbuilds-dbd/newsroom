@@ -17,8 +17,10 @@ export default async function Home() {
     .limit(40);
 
   return (
-    <main className="min-h-screen px-4 py-12 md:py-24">
-      <div className="absolute top-4 right-4">
+    <main className="min-h-screen">
+      {/* Top header bar */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-timeline-line">
+        <h1 className="font-serif text-2xl font-bold italic">Newsroom</h1>
         <form
           action={async () => {
             "use server";
@@ -36,16 +38,6 @@ export default async function Home() {
             Sign out
           </button>
         </form>
-      </div>
-
-      <div className="text-center mb-12">
-        <h1 className="font-serif text-5xl md:text-6xl font-bold italic mb-4">
-          Newsroom
-        </h1>
-        <p className="text-text-secondary text-lg">
-          Understand any news event in depth. Enter an event to build its
-          timeline.
-        </p>
       </div>
 
       <HomeContent stories={(stories as Story[]) || []} />
