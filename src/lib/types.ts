@@ -47,10 +47,42 @@ export interface Story {
   developments?: Development[];
 }
 
+export interface NewsItem {
+  title: string;
+  link: string;
+  source: string;
+  pubDate: string;
+}
+
 export interface GenerateRequest {
   event_query: string;
 }
 
 export interface GenerateResponse {
   story_id: string;
+}
+
+export type NewsSection =
+  | "Sports"
+  | "Politics"
+  | "Global"
+  | "US"
+  | "India"
+  | "Technology"
+  | "Business"
+  | "Other";
+
+export const NEWS_SECTIONS: NewsSection[] = [
+  "Sports",
+  "Politics",
+  "Global",
+  "US",
+  "India",
+  "Technology",
+  "Business",
+  "Other",
+];
+
+export interface ClassifiedNewsItem extends NewsItem {
+  section: NewsSection;
 }
