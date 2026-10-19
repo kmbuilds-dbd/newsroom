@@ -6,6 +6,9 @@
     "dev": "next dev",
     "prebuild": "python3 scripts/generate-icons.py",
     "build": "next build",
+    "build:worker": "npm run prebuild && opennextjs-cloudflare build",
+    "preview:worker": "npm run build:worker && wrangler dev",
+    "deploy": "npm run build:worker && opennextjs-cloudflare deploy",
     "start": "next start -p ${PORT:-3000}",
     "lint": "eslint"
   },
@@ -18,6 +21,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "1.18.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -26,6 +30,7 @@
     "eslint-config-next": "16.1.6",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.65.0"
   }
 }

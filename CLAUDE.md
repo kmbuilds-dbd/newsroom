@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Supabase** (Postgres) for storage
 - **DeepSeek** (`deepseek-chat` via OpenAI-compatible `fetch`) for AI generation — no vendor SDK
 - **html2canvas** for PNG export
-- Deploy target: **Vercel**
+- Deploy target: **Cloudflare Workers** via the OpenNext adapter (`@opennextjs/cloudflare` 1.18.1, pinned — newer adapter releases require Next ≥ 16.2.3). See `docs/DEPLOY-cloudflare.md`.
 
 ## Architecture
 
@@ -76,7 +76,7 @@ The app is installable on iPhone via Safari → Share → Add to Home Screen:
 - `public/manifest.json` (`display: standalone`, dark theme colors)
 - Icons in `public/` (`icon-192.png`, `icon-512.png` maskable, `apple-touch-icon.png`) — generated at build time by `scripts/generate-icons.py` (stdlib-only Python, wired as `prebuild` in `package.json`) and gitignored, so the branch carries no binary icons
 - PWA metadata in `src/app/layout.tsx` (`manifest`, `appleWebApp`, `themeColor`, `viewport-fit=cover`)
-- `src/proxy.ts` lets the manifest/icons through without a session so the browser can fetch them at install time
+- `src/middleware.ts` (Edge runtime) is the auth boundary — it lets the manifest/icons through without a session so the browser can fetch them at install time. It is intentionally `middleware.ts`, not Next 16's `proxy.ts`: `proxy` is Node.js-only and OpenNext does not support it. `middleware.ts` is deprecated in Next 16 but still works; revisit when OpenNext supports Node proxy.
 - No service worker yet — iOS install works from manifest + meta tags alone. Add one later if offline support is wanted.
 
 ## Design Review

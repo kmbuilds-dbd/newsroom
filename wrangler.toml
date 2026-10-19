@@ -1,0 +1,22 @@
+# Cloudflare Workers config for the Newsroom PWA.
+# Deploy with: npm run deploy  (builds via OpenNext, then deploys)
+# Docs: docs/DEPLOY-cloudflare.md
+#
+# Secrets are NEVER stored here. Runtime secrets are set with
+# `wrangler secret put <NAME>` or in the Cloudflare dashboard.
+# NEXT_PUBLIC_* vars are inlined at build time, so they must be present in
+# the environment when running `npm run build:worker`.
+
+name = "newsroom"
+main = ".open-next/worker.js"
+upload_source_maps = true
+# Set to today's date when bumping; Cloudflare rejects future dates.
+compatibility_date = "2026-10-19"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[observability]
+enabled = true
