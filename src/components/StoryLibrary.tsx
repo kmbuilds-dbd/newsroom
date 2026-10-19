@@ -82,7 +82,7 @@ export default function StoryLibrary({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search stories..."
-          className="w-full bg-bg-card border border-timeline-line rounded-lg px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-text-secondary transition-colors font-mono"
+          className="w-full bg-bg-card border border-timeline-line rounded-lg px-4 py-2.5 text-base text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-text-secondary transition-colors font-mono"
         />
         {search && (
           <button

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ClassifiedNewsItem, NewsSection } from "@/lib/types";
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -36,11 +36,13 @@ export default function SectionCards({
   onAddStory,
 }: SectionCardsProps) {
   const [page, setPage] = useState(0);
+  const [prevSection, setPrevSection] = useState(section);
 
-  // Reset page when section changes
-  useEffect(() => {
+  // Reset page when section changes (adjust state during render, not in an effect)
+  if (prevSection !== section) {
+    setPrevSection(section);
     setPage(0);
-  }, [section]);
+  }
 
   const totalPages = Math.ceil(items.length / PAGE_SIZE);
   const safePage = Math.min(page, Math.max(0, totalPages - 1));
@@ -108,7 +110,7 @@ export default function SectionCards({
                   e.stopPropagation();
                   onAddStory(item.title);
                 }}
-                className="w-6 h-6 flex items-center justify-center rounded border border-timeline-line text-text-secondary hover:text-text-primary hover:border-text-secondary transition-colors text-xs leading-none"
+                className="w-8 h-8 flex items-center justify-center rounded border border-timeline-line text-text-secondary hover:text-text-primary hover:border-text-secondary transition-colors text-sm leading-none"
                 aria-label={`Add story for ${item.title}`}
                 title="Add story"
               >

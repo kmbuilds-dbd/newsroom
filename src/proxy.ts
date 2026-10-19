@@ -4,6 +4,18 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
+  // Allow PWA install assets without a session — the browser fetches
+  // the manifest and icons when the user adds the app to the home screen.
+  if (
+    pathname === "/manifest.json" ||
+    pathname === "/icon-192.png" ||
+    pathname === "/icon-512.png" ||
+    pathname === "/apple-touch-icon.png" ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
   // Allow auth routes and sign-in page
   if (pathname.startsWith("/api/auth") || pathname === "/sign-in") {
     return NextResponse.next();

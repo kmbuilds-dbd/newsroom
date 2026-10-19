@@ -41,7 +41,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
   return (
     <main className="min-h-screen pb-24">
       <StoryHeader story={fullStory} />
-      <div className="flex items-center justify-center gap-2 mb-8">
+      <div className="flex items-center justify-center gap-2 mb-8 flex-wrap px-4">
         <RefreshButton storyId={id} />
         <ExportButton />
         <DeleteButton storyId={id} />

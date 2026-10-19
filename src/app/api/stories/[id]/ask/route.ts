@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { supabase } from "@/lib/supabase";
 import { Development } from "@/lib/types";
 import { requireAuth } from "@/lib/api-auth";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-});
+import { askQuestion } from "@/lib/deepseek";
 
 export async function POST(
   request: NextRequest,
@@ -67,19 +63,8 @@ ${timelineContext}
 Answer the user's question about this topic accurately and concisely. Draw on the timeline context above, and supplement with your broader knowledge where helpful. Keep answers to 2-3 paragraphs unless the question requires more detail.`;
 
   try {
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [{ role: "user", content: question.trim() }],
-    });
-
-    const textBlock = message.content.find((block) => block.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
-      throw new Error("No text response from Claude");
-    }
-
-    return NextResponse.json({ answer: textBlock.text });
+    const answer = await askQuestion(systemPrompt, question.trim());
+    return NextResponse.json({ answer });
   } catch (err) {
     console.error("Ask API error:", err);
     return NextResponse.json(

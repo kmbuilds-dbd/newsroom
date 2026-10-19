@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { generateTimeline } from "@/lib/anthropic";
+import { generateTimeline } from "@/lib/deepseek";
 import { STORY_CATEGORIES, StoryCategory } from "@/lib/types";
 import { requireAuth } from "@/lib/api-auth";
 

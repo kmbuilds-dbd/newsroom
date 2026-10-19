@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "python3 scripts/generate-icons.py",
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
     "lint": "eslint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.78.0",
     "@supabase/supabase-js": "^2.98.0",
     "html2canvas": "^1.4.1",
     "next": "16.1.6",

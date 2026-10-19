@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Newsroom** is a tool for understanding past news events in depth. A user enters an event name, Claude researches it via the Anthropic API, and the app generates an interactive visual timeline of key developments with source links.
+**Newsroom** is a tool for understanding past news events in depth. A user enters an event name, DeepSeek (via its OpenAI-compatible chat API) generates a timeline, and the app renders an interactive visual timeline of key developments with source links. DeepSeek has no web browsing, so timelines come from training knowledge and the prompt forbids inventing source URLs.
 
 ## Tech Stack
 
 - **Next.js 14+** (App Router) with TypeScript
 - **Tailwind CSS** for styling
 - **Supabase** (Postgres) for storage
-- **Anthropic SDK** (`@anthropic-ai/sdk`) for AI generation
+- **DeepSeek** (`deepseek-chat` via OpenAI-compatible `fetch`) for AI generation — no vendor SDK
 - **html2canvas** for PNG export
 - Deploy target: **Vercel**
 
@@ -36,7 +36,7 @@ src/
 │   └── SearchBar.tsx               # Event name input
 ├── lib/
 │   ├── supabase.ts                 # Supabase client
-│   ├── anthropic.ts                # Claude API wrapper + prompt
+│   ├── deepseek.ts                 # DeepSeek API wrapper + prompt
 │   └── types.ts                    # Shared TypeScript types
 └── styles/globals.css              # Tailwind + dark theme
 ```
@@ -49,7 +49,7 @@ src/
 
 ## AI Pipeline
 
-`POST /api/stories/generate` → Claude API (structured JSON response) → insert into Supabase → return story ID
+`POST /api/stories/generate` → DeepSeek API (`response_format: json_object`) → insert into Supabase → return story ID
 
 ## Visual Design (from concept.jpg)
 
@@ -61,9 +61,23 @@ src/
 
 ## Environment Variables
 
-- `ANTHROPIC_API_KEY`
+- `DEEPSEEK_API_KEY` (server-side only — never `NEXT_PUBLIC_*`)
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `AUTH_SECRET` — NextAuth session secret
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth (Auth.js)
+- `EXTENSION_API_KEY` — shared secret for the Chrome extension's API calls
+
+See `.env.example` for the full list.
+
+## PWA
+
+The app is installable on iPhone via Safari → Share → Add to Home Screen:
+- `public/manifest.json` (`display: standalone`, dark theme colors)
+- Icons in `public/` (`icon-192.png`, `icon-512.png` maskable, `apple-touch-icon.png`) — generated at build time by `scripts/generate-icons.py` (stdlib-only Python, wired as `prebuild` in `package.json`) and gitignored, so the branch carries no binary icons
+- PWA metadata in `src/app/layout.tsx` (`manifest`, `appleWebApp`, `themeColor`, `viewport-fit=cover`)
+- `src/proxy.ts` lets the manifest/icons through without a session so the browser can fetch them at install time
+- No service worker yet — iOS install works from manifest + meta tags alone. Add one later if offline support is wanted.
 
 ## Design Review
 
@@ -83,6 +97,7 @@ Use the **impeccable** plugin to review UI quality during development.
 - **Tagging**: Topics, actors, themes for cross-referencing
 - **Search**: Full-text across stories and developments
 - **iOS app**: Native app consuming the same API
+- **PWA**: Installable via Safari Add to Home Screen (done — see PWA section)
 
 ## Key Documents
 

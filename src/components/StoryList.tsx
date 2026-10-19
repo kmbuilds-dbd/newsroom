@@ -143,7 +143,7 @@ export default function StoryList({
                       e.stopPropagation();
                       onDelete(story.id);
                     }}
-                    className="text-text-secondary hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                    className="text-text-secondary hover:text-red-400 transition-colors md:opacity-0 md:group-hover:opacity-100"
                     aria-label="Delete story"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

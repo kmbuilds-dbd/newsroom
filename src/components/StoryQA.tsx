@@ -62,7 +62,7 @@ export default function StoryQA({ storyId, storyTitle }: StoryQAProps) {
             onChange={(e) => setQuestion(e.target.value)}
             placeholder={`Ask a question about ${storyTitle}...`}
             disabled={loading}
-            className="w-full bg-bg-card border border-white/[0.06] rounded-lg px-5 py-3 text-sm text-text-primary placeholder-text-secondary font-sans focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all disabled:opacity-50"
+            className="w-full bg-bg-card border border-white/[0.06] rounded-lg px-5 py-3 text-base text-text-primary placeholder-text-secondary font-sans focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all disabled:opacity-50"
           />
           {loading && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2">

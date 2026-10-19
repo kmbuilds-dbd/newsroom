@@ -41,8 +41,6 @@ export default function HomeContent({ stories }: HomeContentProps) {
 
   // Fetch and classify news
   useEffect(() => {
-    setNewsLoading(true);
-
     fetch("/api/news")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch news");
@@ -195,7 +193,7 @@ export default function HomeContent({ stories }: HomeContentProps) {
   }, []);
 
   return (
-    <div className="flex gap-0 min-h-[calc(100vh-120px)]">
+    <div className="flex flex-col md:flex-row gap-0 min-h-[calc(100vh-120px)]">
       <Sidebar
         activeSection={activeSection}
         onSectionChange={setActiveSection}

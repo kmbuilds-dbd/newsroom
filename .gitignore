@@ -46,3 +46,13 @@ next-env.d.ts
 # screenshots
 *.png
 !public/**/*.png
+
+# PWA icons — regenerated at build time by scripts/generate-icons.py (prebuild),
+# so they are never committed. These entries come after the !public/**/*.png
+# negation above and override it for exactly these three files.
+/public/icon-192.png
+/public/icon-512.png
+/public/apple-touch-icon.png
+
+# .env.example is a committed template (placeholders only, no real secrets)
+!.env.example

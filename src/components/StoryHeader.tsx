@@ -33,7 +33,7 @@ export default function StoryHeader({ story }: StoryHeaderProps) {
   const dateRange = formatDateRange(story);
 
   return (
-    <header className="text-center mb-6 lg:mb-10 pt-8 lg:pt-12">
+    <header className="text-center mb-6 lg:mb-10 pt-8 lg:pt-12 px-4">
       <div className="mb-6">
         <Link
           href="/"

@@ -28,7 +28,7 @@ export default async function Home() {
           }}
           className="flex items-center gap-3"
         >
-          <span className="text-text-secondary text-sm">
+          <span className="hidden sm:inline text-text-secondary text-sm">
             {session?.user?.email}
           </span>
           <button
